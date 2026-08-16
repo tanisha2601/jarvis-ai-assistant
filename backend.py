@@ -21,6 +21,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, field_validator
 from dotenv import load_dotenv
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 
 # ─── Load environment variables ──────────────────────────────────────────────
 load_dotenv()
@@ -93,6 +96,15 @@ app = FastAPI(
     version="7.0.0",
     lifespan=lifespan,
 )
+
+
+app.mount("/static", StaticFiles(directory="."), name="static")
+
+@app.get("/app")
+async def serve_frontend():
+    return FileResponse("index.html")
+
+
 
 
 @app.get("/")

@@ -1,6 +1,6 @@
 {
   "builds": [
-    { "src": "backend.py", "use": "@vercel/python" }
+    { "src": "backend.py", "use": "@vercel/python", "config": { "includeFiles": ["index.html", "style.css", "script.js", "jarvis.png"] } }
   ],
   "routes": [
     { "src": "/(.*)", "dest": "backend.py" }
