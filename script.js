@@ -15,7 +15,7 @@
    1. CONFIG
    ═══════════════════════════════════════════════════════════════════════════ */
 const CONFIG = {
-  API_BASE:         'http://127.0.0.1:8000',
+  API_BASE: 'https://jarvis-ai-assistant-1fve.onrender.com',
   FETCH_TIMEOUT_MS: 12000,   // 12s before a request times out
   HEALTH_INTERVAL:  15000,   // Poll backend health every 15s
   HEALTH_ON_START:  true,
