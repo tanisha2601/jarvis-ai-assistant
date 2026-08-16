@@ -1,0 +1,98 @@
+[
+  {
+    "role": "user",
+    "content": "Open YouTube."
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Tanisha! I'm Jarvis — your assistant. How can I help today?"
+  },
+  {
+    "role": "user",
+    "content": "Play Chauncey Taare."
+  },
+  {
+    "role": "assistant",
+    "content": "Interesting, tell me more."
+  },
+  {
+    "role": "user",
+    "content": "Hello, Jarvis."
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Tanisha! I'm Jarvis — your assistant. How can I help today?"
+  },
+  {
+    "role": "user",
+    "content": "Close YouTube panel."
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Tanisha! I'm Jarvis — your assistant. How can I help today?"
+  },
+  {
+    "role": "user",
+    "content": "Hello, Jarvis."
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Tanisha! I'm Jarvis — your assistant. How can I help today?"
+  },
+  {
+    "role": "user",
+    "content": "open calculator"
+  },
+  {
+    "role": "assistant",
+    "content": "Opening calculator"
+  },
+  {
+    "role": "user",
+    "content": "open calendar"
+  },
+  {
+    "role": "assistant",
+    "content": "Opening calendar"
+  },
+  {
+    "role": "user",
+    "content": "open google"
+  },
+  {
+    "role": "assistant",
+    "content": "Opening Google..."
+  },
+  {
+    "role": "user",
+    "content": "open youtube"
+  },
+  {
+    "role": "assistant",
+    "content": "Hey Tanisha! I'm Jarvis — your assistant. How can I help today?"
+  },
+  {
+    "role": "user",
+    "content": "open whatsapp"
+  },
+  {
+    "role": "assistant",
+    "content": "Opening whatsapp"
+  },
+  {
+    "role": "user",
+    "content": "weather"
+  },
+  {
+    "role": "assistant",
+    "content": "Delhi: 🌫  +30°C"
+  },
+  {
+    "role": "user",
+    "content": "system info"
+  },
+  {
+    "role": "assistant",
+    "content": "That’s nice to hear!"
+  }
+]

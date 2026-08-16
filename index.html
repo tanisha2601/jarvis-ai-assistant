@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="JARVIS Ultra Pro — Personal AI Productivity Assistant by Tanisha and Antim. AI chat, task management, notes, reminders, and voice commands in one sleek dashboard." />
+  <title>JARVIS Ultra Pro — AI Productivity Assistant</title>
+
+  <!-- Favicon using existing jarvis.png -->
+  <link rel="icon" type="image/png" href="jarvis.png" />
+  <link rel="shortcut icon" href="jarvis.png" />
+
+  <!-- Google Fonts: Inter (body) + Orbitron (branding) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="theme-dark" data-theme="dark">
+
+  <!-- ── Toast Container ─────────────────────────────────────────────── -->
+  <div id="toastContainer" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- ── App Shell ───────────────────────────────────────────────────── -->
+  <div class="app-shell" id="appShell">
+
+    <!-- ── Sidebar ──────────────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+      <!-- Sidebar Brand -->
+      <div class="sidebar-brand">
+        <img src="jarvis.png" alt="JARVIS logo" class="sidebar-logo" />
+        <div class="sidebar-brand-text">
+          <span class="sidebar-brand-name">JARVIS</span>
+          <span class="sidebar-brand-sub">Ultra Pro</span>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-section="dashboard" id="nav-dashboard" aria-current="page">
+          <i data-lucide="layout-dashboard" class="nav-icon"></i>
+          <span class="nav-label">Dashboard</span>
+        </button>
+        <button class="nav-item" data-section="chat" id="nav-chat">
+          <i data-lucide="message-circle" class="nav-icon"></i>
+          <span class="nav-label">AI Chat</span>
+        </button>
+        <button class="nav-item" data-section="tasks" id="nav-tasks">
+          <i data-lucide="check-square" class="nav-icon"></i>
+          <span class="nav-label">Tasks</span>
+          <span class="nav-badge" id="tasksBadge" style="display:none"></span>
+        </button>
+        <button class="nav-item" data-section="notes" id="nav-notes">
+          <i data-lucide="file-text" class="nav-icon"></i>
+          <span class="nav-label">Notes</span>
+        </button>
+        <button class="nav-item" data-section="reminders" id="nav-reminders">
+          <i data-lucide="bell" class="nav-icon"></i>
+          <span class="nav-label">Reminders</span>
+          <span class="nav-badge" id="remindersBadge" style="display:none"></span>
+        </button>
+        <button class="nav-item" data-section="history" id="nav-history">
+          <i data-lucide="clock" class="nav-icon"></i>
+          <span class="nav-label">History</span>
+        </button>
+        <button class="nav-item" data-section="settings" id="nav-settings">
+          <i data-lucide="settings" class="nav-icon"></i>
+          <span class="nav-label">Settings</span>
+        </button>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <div class="status-dot-wrap">
+          <span class="status-dot" id="sidebarStatusDot"></span>
+          <span class="status-label" id="sidebarStatusLabel">Connecting...</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ── Main Content ─────────────────────────────────────────────── -->
+    <div class="main-content">
+
+      <!-- ── Header ────────────────────────────────────────────────── -->
+      <header class="topbar" role="banner">
+        <!-- Mobile menu toggle -->
+        <button class="topbar-menu-btn" id="sidebarToggle" aria-label="Toggle sidebar" aria-expanded="false">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <!-- Brand (shown on mobile) -->
+        <div class="topbar-brand">
+          <span class="topbar-brand-name">JARVIS</span>
+          <span class="topbar-brand-pro">ULTRA PRO</span>
+        </div>
+
+        <!-- Search -->
+        <div class="topbar-search" role="search">
+          <i data-lucide="search" class="search-icon"></i>
+          <input
+            type="search"
+            id="globalSearch"
+            class="search-input"
+            placeholder="Search tasks, notes, history… (Ctrl+K)"
+            aria-label="Global search"
+            autocomplete="off"
+          />
+        </div>
+
+        <!-- Status + Actions -->
+        <div class="topbar-actions">
+          <!-- Backend Status -->
+          <div class="backend-status" id="backendStatus" title="Backend connection status" role="status" aria-live="polite">
+            <span class="status-dot" id="statusDot"></span>
+            <span class="status-text" id="statusText">Connecting…</span>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="topbar-btn" id="themeToggle" aria-label="Toggle dark/light theme" title="Toggle theme">
+            <i data-lucide="moon" id="themeIcon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- ── Search Results Overlay ──────────────────────────────── -->
+      <div class="search-results" id="searchResults" style="display:none" role="listbox" aria-label="Search results"></div>
+
+      <!-- ── Workspace ──────────────────────────────────────────── -->
+      <main class="workspace" id="workspace">
+
+        <!-- ══════ DASHBOARD ═══════════════════════════════════════ -->
+        <section class="panel active" id="panel-dashboard" aria-label="Dashboard">
+          <div class="panel-header">
+            <h1 class="panel-title">Dashboard</h1>
+            <p class="panel-subtitle">Your AI productivity command center</p>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="dashboard-grid">
+            <div class="stat-card" id="statJarvisStatus">
+              <div class="stat-card-icon stat-icon-primary">
+                <i data-lucide="cpu"></i>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-value" id="dashStatusValue">—</span>
+                <span class="stat-label">JARVIS Status</span>
+              </div>
+            </div>
+
+            <div class="stat-card clickable" data-nav="tasks">
+              <div class="stat-card-icon stat-icon-success">
+                <i data-lucide="check-circle-2"></i>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-value" id="dashTasksValue">—</span>
+                <span class="stat-label">Tasks Today</span>
+              </div>
+            </div>
+
+            <div class="stat-card clickable" data-nav="notes">
+              <div class="stat-card-icon stat-icon-warning">
+                <i data-lucide="sticky-note"></i>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-value" id="dashNotesValue">—</span>
+                <span class="stat-label">Notes</span>
+              </div>
+            </div>
+
+            <div class="stat-card clickable" data-nav="reminders">
+              <div class="stat-card-icon stat-icon-error">
+                <i data-lucide="bell-ring"></i>
+              </div>
+              <div class="stat-card-body">
+                <span class="stat-value" id="dashRemindersValue">—</span>
+                <span class="stat-label">Upcoming Reminders</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="section-header">
+            <h2 class="section-title">Quick Actions</h2>
+          </div>
+          <div class="quick-actions">
+            <button class="quick-btn" data-action="new-task">
+              <i data-lucide="plus-circle"></i>
+              <span>New Task</span>
+            </button>
+            <button class="quick-btn" data-action="new-note">
+              <i data-lucide="file-plus"></i>
+              <span>New Note</span>
+            </button>
+            <button class="quick-btn" data-action="ask-jarvis">
+              <i data-lucide="message-square-plus"></i>
+              <span>Ask JARVIS</span>
+            </button>
+            <button class="quick-btn" data-action="voice-mode">
+              <i data-lucide="mic"></i>
+              <span>Voice Mode</span>
+            </button>
+            <button class="quick-btn" data-action="new-reminder">
+              <i data-lucide="bell-plus"></i>
+              <span>Reminder</span>
+            </button>
+            <button class="quick-btn" data-action="view-history">
+              <i data-lucide="history"></i>
+              <span>History</span>
+            </button>
+          </div>
+
+          <!-- Recent Tasks Preview -->
+          <div class="section-header">
+            <h2 class="section-title">Recent Tasks</h2>
+            <button class="section-link" data-nav="tasks">View all →</button>
+          </div>
+          <div id="dashRecentTasks" class="dashboard-list">
+            <div class="empty-state-mini">No tasks yet — create one above</div>
+          </div>
+        </section>
+
+        <!-- ══════ AI CHAT ═══════════════════════════════════════ -->
+        <section class="panel" id="panel-chat" aria-label="AI Chat">
+          <div class="panel-header chat-panel-header">
+            <div>
+              <h1 class="panel-title">AI Chat</h1>
+              <p class="panel-subtitle">Powered by Google Gemini</p>
+            </div>
+            <div class="chat-actions">
+              <button class="icon-btn" id="clearChatBtn" title="Clear conversation" aria-label="Clear chat">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Chat Log -->
+          <div class="chat-log" id="chatLog" role="log" aria-live="polite" aria-label="Chat messages"></div>
+
+          <!-- Typing Indicator -->
+          <div class="typing-indicator" id="typingIndicator" style="display:none" aria-label="JARVIS is thinking">
+            <div class="typing-bubble">
+              <span></span><span></span><span></span>
+            </div>
+            <span class="typing-text">JARVIS is thinking…</span>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-area">
+            <div class="chat-input-wrap">
+              <textarea
+                id="userInput"
+                class="chat-textarea"
+                placeholder="Ask JARVIS anything… (Enter to send, Shift+Enter for new line)"
+                rows="1"
+                aria-label="Message input"
+                autocomplete="off"
+              ></textarea>
+              <div class="chat-input-actions">
+                <button class="input-icon-btn" id="micBtn" title="Voice input" aria-label="Start voice input">
+                  <i data-lucide="mic" id="micIcon"></i>
+                </button>
+                <button class="input-icon-btn voice-toggle-btn" id="ttsToggle" title="Toggle text-to-speech" aria-label="Toggle voice response" aria-pressed="true">
+                  <i data-lucide="volume-2" id="ttsIcon"></i>
+                </button>
+                <button class="send-btn" id="sendBtn" aria-label="Send message" title="Send (Enter)">
+                  <i data-lucide="send"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ══════ TASKS ════════════════════════════════════════ -->
+        <section class="panel" id="panel-tasks" aria-label="Task Manager">
+          <div class="panel-header">
+            <div>
+              <h1 class="panel-title">Tasks</h1>
+              <p class="panel-subtitle" id="taskCountLabel">No tasks yet</p>
+            </div>
+            <button class="btn-primary" id="newTaskBtn" aria-label="Create new task">
+              <i data-lucide="plus"></i> New Task
+            </button>
+          </div>
+
+          <!-- Task Filters -->
+          <div class="filter-bar">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="pending">Pending</button>
+            <button class="filter-btn" data-filter="completed">Completed</button>
+            <div class="filter-sep"></div>
+            <button class="filter-btn" data-priority="high">🔴 High</button>
+            <button class="filter-btn" data-priority="medium">🟡 Medium</button>
+            <button class="filter-btn" data-priority="low">🟢 Low</button>
+          </div>
+
+          <!-- Task List -->
+          <div id="taskList" class="task-list" role="list" aria-label="Tasks"></div>
+        </section>
+
+        <!-- ══════ NOTES ════════════════════════════════════════ -->
+        <section class="panel" id="panel-notes" aria-label="Notes">
+          <div class="panel-header">
+            <div>
+              <h1 class="panel-title">Notes</h1>
+              <p class="panel-subtitle" id="noteCountLabel">No notes yet</p>
+            </div>
+            <button class="btn-primary" id="newNoteBtn" aria-label="Create new note">
+              <i data-lucide="plus"></i> New Note
+            </button>
+          </div>
+
+          <!-- Notes Search -->
+          <div class="notes-search-wrap">
+            <i data-lucide="search" class="notes-search-icon"></i>
+            <input type="search" id="notesSearch" class="notes-search" placeholder="Search notes…" aria-label="Search notes" />
+          </div>
+
+          <div id="noteGrid" class="note-grid" role="list" aria-label="Notes"></div>
+        </section>
+
+        <!-- ══════ REMINDERS ════════════════════════════════════ -->
+        <section class="panel" id="panel-reminders" aria-label="Reminders">
+          <div class="panel-header">
+            <div>
+              <h1 class="panel-title">Reminders</h1>
+              <p class="panel-subtitle" id="reminderCountLabel">No reminders set</p>
+            </div>
+            <button class="btn-primary" id="newReminderBtn" aria-label="Create new reminder">
+              <i data-lucide="plus"></i> New Reminder
+            </button>
+          </div>
+
+          <div id="reminderList" class="reminder-list" role="list" aria-label="Reminders"></div>
+        </section>
+
+        <!-- ══════ HISTORY ══════════════════════════════════════ -->
+        <section class="panel" id="panel-history" aria-label="Conversation History">
+          <div class="panel-header">
+            <div>
+              <h1 class="panel-title">History</h1>
+              <p class="panel-subtitle">Previous conversations with JARVIS</p>
+            </div>
+            <button class="btn-danger" id="clearHistoryBtn" aria-label="Clear all history">
+              <i data-lucide="trash-2"></i> Clear
+            </button>
+          </div>
+
+          <div id="historyLog" class="history-log" role="log" aria-label="Conversation history"></div>
+        </section>
+
+        <!-- ══════ SETTINGS ════════════════════════════════════ -->
+        <section class="panel" id="panel-settings" aria-label="Settings">
+          <div class="panel-header">
+            <h1 class="panel-title">Settings</h1>
+            <p class="panel-subtitle">Customize your JARVIS experience</p>
+          </div>
+
+          <div class="settings-grid">
+
+            <!-- Appearance -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <i data-lucide="palette"></i>
+                <h2>Appearance</h2>
+              </div>
+              <div class="settings-body">
+                <div class="setting-row">
+                  <label for="themeSelect">Theme</label>
+                  <select id="themeSelect" class="setting-select" aria-label="Choose theme">
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Voice -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <i data-lucide="volume-2"></i>
+                <h2>Voice</h2>
+              </div>
+              <div class="settings-body">
+                <div class="setting-row">
+                  <label for="voiceToggleSetting">Text-to-Speech</label>
+                  <label class="toggle-switch" aria-label="Toggle TTS">
+                    <input type="checkbox" id="voiceToggleSetting" checked aria-label="Enable voice response" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <label for="voiceRate">Speech Rate</label>
+                  <div class="slider-wrap">
+                    <input type="range" id="voiceRate" min="0.5" max="2" step="0.1" value="1" class="setting-range" aria-label="Speech rate" />
+                    <span class="slider-val" id="voiceRateVal">1.0×</span>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <label for="voiceVolume">Volume</label>
+                  <div class="slider-wrap">
+                    <input type="range" id="voiceVolume" min="0" max="1" step="0.1" value="1" class="setting-range" aria-label="Speech volume" />
+                    <span class="slider-val" id="voiceVolumeVal">100%</span>
+                  </div>
+                </div>
+                <div class="setting-row">
+                  <label for="voiceSelect">Voice</label>
+                  <select id="voiceSelect" class="setting-select" aria-label="Select voice"></select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chat -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <i data-lucide="message-circle"></i>
+                <h2>Chat</h2>
+              </div>
+              <div class="settings-body">
+                <div class="setting-row">
+                  <label for="enterToSend">Enter to Send</label>
+                  <label class="toggle-switch" aria-label="Toggle enter to send">
+                    <input type="checkbox" id="enterToSend" checked aria-label="Send message on Enter key" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <label for="autoScroll">Auto-Scroll</label>
+                  <label class="toggle-switch" aria-label="Toggle auto-scroll">
+                    <input type="checkbox" id="autoScroll" checked aria-label="Auto-scroll to new messages" />
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <label>Clear Conversation</label>
+                  <button class="btn-danger-sm" id="clearChatSettingBtn">Clear Chat</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Data -->
+            <div class="settings-card">
+              <div class="settings-card-header">
+                <i data-lucide="database"></i>
+                <h2>Data</h2>
+              </div>
+              <div class="settings-body">
+                <div class="setting-row">
+                  <label>Export Data</label>
+                  <button class="btn-secondary-sm" id="exportDataBtn">
+                    <i data-lucide="download"></i> Export
+                  </button>
+                </div>
+                <div class="setting-row">
+                  <label>Import Data</label>
+                  <label class="btn-secondary-sm file-label">
+                    <i data-lucide="upload"></i> Import
+                    <input type="file" id="importDataInput" accept=".json" style="display:none" aria-label="Import data file" />
+                  </label>
+                </div>
+                <div class="setting-row">
+                  <label>Clear All Local Data</label>
+                  <button class="btn-danger-sm" id="clearAllDataBtn">Clear All</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- About -->
+          <div class="settings-about">
+            <img src="jarvis.png" alt="JARVIS" class="about-logo" />
+            <h3 class="about-name">JARVIS Ultra Pro</h3>
+            <p class="about-sub">Personal AI Productivity Assistant · v7.0</p>
+            <p class="about-credit">Designed &amp; Developed by <strong>Tanisha and Antim</strong></p>
+          </div>
+        </section>
+
+      </main><!-- /workspace -->
+    </div><!-- /main-content -->
+  </div><!-- /app-shell -->
+
+  <!-- ── Sidebar Overlay (mobile) ──────────────────────────────────── -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ── Task Modal ────────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="taskModalBackdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="taskModalTitle">New Task</h2>
+        <button class="modal-close" id="closeTaskModal" aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="taskEditId" />
+        <div class="form-group">
+          <label for="taskTitle" class="form-label">Task Title <span class="required">*</span></label>
+          <input type="text" id="taskTitle" class="form-input" placeholder="What needs to be done?" required aria-required="true" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskPriority" class="form-label">Priority</label>
+            <select id="taskPriority" class="form-select" aria-label="Task priority">
+              <option value="low">🟢 Low</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="high">🔴 High</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskDueDate" class="form-label">Due Date</label>
+            <input type="date" id="taskDueDate" class="form-input" aria-label="Task due date" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="taskNotes" class="form-label">Notes</label>
+          <textarea id="taskNotes" class="form-textarea" placeholder="Optional notes…" rows="3" aria-label="Task notes"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelTaskModal">Cancel</button>
+        <button class="btn-primary" id="saveTaskBtn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Note Modal ────────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="noteModalBackdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle">
+    <div class="modal modal-wide">
+      <div class="modal-header">
+        <h2 class="modal-title" id="noteModalTitle">New Note</h2>
+        <button class="modal-close" id="closeNoteModal" aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="noteEditId" />
+        <div class="form-group">
+          <label for="noteTitle" class="form-label">Title <span class="required">*</span></label>
+          <input type="text" id="noteTitle" class="form-input" placeholder="Note title…" required aria-required="true" />
+        </div>
+        <div class="form-group">
+          <label for="noteContent" class="form-label">Content</label>
+          <textarea id="noteContent" class="form-textarea" placeholder="Write your note here…" rows="8" aria-label="Note content"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="toggle-row">
+            <span class="form-label">Pin Note</span>
+            <label class="toggle-switch">
+              <input type="checkbox" id="notePin" aria-label="Pin note" />
+              <span class="toggle-slider"></span>
+            </label>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelNoteModal">Cancel</button>
+        <button class="btn-primary" id="saveNoteBtn">Save Note</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Reminder Modal ─────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="reminderModalBackdrop" style="display:none" role="dialog" aria-modal="true" aria-labelledby="reminderModalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="reminderModalTitle">New Reminder</h2>
+        <button class="modal-close" id="closeReminderModal" aria-label="Close modal"><i data-lucide="x"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="reminderEditId" />
+        <div class="form-group">
+          <label for="reminderTitle" class="form-label">Reminder <span class="required">*</span></label>
+          <input type="text" id="reminderTitle" class="form-input" placeholder="Remind me to…" required aria-required="true" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="reminderDate" class="form-label">Date <span class="required">*</span></label>
+            <input type="date" id="reminderDate" class="form-input" required aria-required="true" aria-label="Reminder date" />
+          </div>
+          <div class="form-group">
+            <label for="reminderTime" class="form-label">Time <span class="required">*</span></label>
+            <input type="time" id="reminderTime" class="form-input" required aria-required="true" aria-label="Reminder time" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="reminderDesc" class="form-label">Description</label>
+          <textarea id="reminderDesc" class="form-textarea" placeholder="Optional description…" rows="3" aria-label="Reminder description"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="cancelReminderModal">Cancel</button>
+        <button class="btn-primary" id="saveReminderBtn">Set Reminder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Confirm Modal ─────────────────────────────────────────────── -->
+  <div class="modal-backdrop" id="confirmModalBackdrop" style="display:none" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2 class="modal-title" id="confirmModalTitle">Confirm</h2>
+      </div>
+      <div class="modal-body">
+        <p id="confirmModalMsg" class="confirm-msg"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-ghost" id="confirmCancelBtn">Cancel</button>
+        <button class="btn-danger" id="confirmOkBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

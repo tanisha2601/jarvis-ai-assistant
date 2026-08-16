@@ -1,0 +1,5 @@
+{
+    "venvPath": ".",
+    "venv": "jarvis_env",
+    "pythonVersion": "3.12"
+}
