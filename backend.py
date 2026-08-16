@@ -94,6 +94,15 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+
+@app.get("/")
+async def root():
+    return {
+        "message": "JARVIS Ultra Pro API is running 🚀",
+        "status": "online",
+        "docs": "/docs"
+    }
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],          # Open for local development
