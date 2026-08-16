@@ -15,11 +15,11 @@
    1. CONFIG
    ═══════════════════════════════════════════════════════════════════════════ */
 const CONFIG = {
-  API_BASE: 'https://jarvis-ai-assistant-1fve.onrender.com',
-  FETCH_TIMEOUT_MS: 12000,   // 12s before a request times out
-  HEALTH_INTERVAL:  15000,   // Poll backend health every 15s
+  API_BASE: 'https://jarvis-ai-assistant-n3bf-eosin.vercel.app',
+  FETCH_TIMEOUT_MS: 12000,
+  HEALTH_INTERVAL:  15000,
   HEALTH_ON_START:  true,
-  MAX_HISTORY_SAVE: 200,     // Max messages persisted in chat_history.json
+  MAX_HISTORY_SAVE: 200,
 };
 
 /* ═══════════════════════════════════════════════════════════════════════════
